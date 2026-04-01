@@ -1,0 +1,320 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); background: transparent; }
+
+.page { padding: 0 0 2rem; }
+
+.top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem; border-bottom: 0.5px solid var(--color-border-tertiary);
+  margin-bottom: 1.25rem; flex-wrap: wrap; gap: 8px;
+}
+.top-bar-left { display: flex; align-items: center; gap: 10px; }
+.top-bar-left h2 { font-size: 16px; font-weight: 500; color: var(--color-text-primary); }
+.top-bar-left p { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+.progress-pill {
+  font-size: 12px; font-weight: 500; padding: 4px 12px;
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: 20px; color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+.progress-pill span { color: var(--color-text-success); font-weight: 500; }
+
+.tasks { display: flex; flex-direction: column; gap: 12px; padding: 0 1.25rem; }
+
+.task-card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  transition: border-color .15s;
+}
+.task-card.done { border-color: #1D9E75; }
+.task-card.done .task-header { background: #E1F5EE; }
+
+.task-header {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 14px; cursor: pointer;
+  transition: background .15s;
+}
+.task-header:hover { background: var(--color-background-secondary); }
+.task-card.done .task-header:hover { background: #d0efdf; }
+
+.task-num {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 500;
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-secondary);
+  color: var(--color-text-secondary);
+  margin-top: 1px;
+}
+.task-card.done .task-num {
+  background: #0F6E56; color: #fff; border-color: #0F6E56;
+}
+
+.task-title-wrap { flex: 1; }
+.task-topic {
+  font-size: 10px; font-weight: 500; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--color-text-secondary); margin-bottom: 2px;
+}
+.task-card.done .task-topic { color: #0F6E56; }
+.task-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); line-height: 1.4; }
+.task-card.done .task-title { color: #085041; }
+
+.check-btn {
+  flex-shrink: 0; font-size: 11px; font-weight: 500;
+  padding: 4px 10px; border-radius: 20px; cursor: pointer;
+  border: 0.5px solid var(--color-border-secondary);
+  background: transparent; color: var(--color-text-secondary);
+  transition: all .15s; white-space: nowrap; margin-top: 2px;
+}
+.check-btn:hover { background: var(--color-background-secondary); }
+.task-card.done .check-btn {
+  background: #0F6E56; color: #fff; border-color: #0F6E56;
+}
+
+.task-body { border-top: 0.5px solid var(--color-border-tertiary); padding: 12px 14px; display: none; }
+.task-body.open { display: block; }
+
+.objective {
+  font-size: 13px; color: var(--color-text-primary); line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.steps-label {
+  font-size: 11px; font-weight: 500; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--color-text-secondary); margin-bottom: 8px;
+}
+
+.steps { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.step {
+  display: flex; gap: 10px; align-items: flex-start;
+  font-size: 13px; color: var(--color-text-primary); line-height: 1.5;
+}
+.step-n {
+  width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+  background: var(--color-background-secondary); border: 0.5px solid var(--color-border-secondary);
+  font-size: 11px; font-weight: 500; color: var(--color-text-secondary);
+  display: flex; align-items: center; justify-content: center; margin-top: 1px;
+}
+
+.hint-toggle {
+  font-size: 12px; color: #185FA5; background: none; border: none;
+  cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 2px;
+  margin-bottom: 6px; display: block;
+}
+.hint-box {
+  background: #E6F1FB; border-left: 3px solid #378ADD; border-radius: 0 8px 8px 0;
+  padding: 8px 12px; font-size: 12px; color: #0C447C; line-height: 1.6;
+  display: none; margin-bottom: 10px;
+}
+.hint-box.open { display: block; }
+.hint-box code {
+  font-family: var(--font-mono); font-size: 11px; background: #B5D4F4;
+  padding: 1px 5px; border-radius: 4px; color: #042C53;
+}
+
+.expected {
+  background: var(--color-background-secondary); border-radius: var(--border-radius-md);
+  padding: 8px 10px; font-size: 12px; color: var(--color-text-secondary); line-height: 1.5;
+}
+.expected strong { font-weight: 500; color: var(--color-text-primary); }
+
+.cmd-snippet {
+  font-family: var(--font-mono); font-size: 12px;
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  padding: 6px 10px; color: var(--color-text-primary);
+  margin: 4px 0; display: block; cursor: pointer;
+}
+.cmd-snippet:hover { border-color: var(--color-border-secondary); }
+</style>
+
+<div class="page">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div>
+        <h2>Docker hands-on tasks</h2>
+        <p>Beginner level — 8 practical exercises with hints</p>
+      </div>
+    </div>
+    <div class="progress-pill"><span id="done-count">0</span> / 8 completed</div>
+  </div>
+
+  <div class="tasks" id="tasks-list"></div>
+</div>
+
+<script>
+const tasks = [
+  {
+    topic: "Dockerfile",
+    title: "Write your first Dockerfile",
+    objective: "Create a Dockerfile for a simple web app that prints 'Hello Docker!' when it runs. You will use a base image, set a working directory, copy a file, and define the start command.",
+    steps: [
+      "Create a new folder called my-docker-app on your computer",
+      "Inside it, create a file called app.py with one line: print('Hello Docker!')",
+      "In the same folder, create a file called Dockerfile (no extension)",
+      "Add these 4 lines to your Dockerfile: FROM python:3.11-slim, WORKDIR /app, COPY app.py ., CMD [\"python\", \"app.py\"]",
+      "Save both files"
+    ],
+    hint: "Your Dockerfile should have exactly 4 lines. Each line starts with a keyword like <code>FROM</code>, <code>WORKDIR</code>, <code>COPY</code>, or <code>CMD</code>. No quotes or extra spaces around them.",
+    expected: "A folder with two files: app.py and Dockerfile. No errors when you open them in a text editor."
+  },
+  {
+    topic: "Docker build",
+    title: "Build your first Docker image",
+    objective: "Turn the Dockerfile you wrote in Task 1 into a Docker image. You will use the docker build command and give the image a name and a tag.",
+    steps: [
+      "Open your terminal and navigate into the my-docker-app folder using cd my-docker-app",
+      "Run the build command with a name and tag",
+      "Wait for Docker to finish — you will see several 'Step' lines",
+      "Verify the image was created by listing all images"
+    ],
+    hint: "The build command is <code>docker build -t hello-docker:v1 .</code> — the dot at the end means 'use the Dockerfile in this folder'. To list images use <code>docker images</code>.",
+    expected: "You should see hello-docker listed in docker images with tag v1 and a size shown in MB."
+  },
+  {
+    topic: "Docker run",
+    title: "Run a container from your image",
+    objective: "Start a container from the image you just built and see it print 'Hello Docker!' in your terminal.",
+    steps: [
+      "Use the docker run command with your image name and tag",
+      "Watch the output — it should print Hello Docker!",
+      "The container will stop automatically after printing (that is normal)",
+      "Run docker ps -a to see the stopped container in the list"
+    ],
+    hint: "The command is <code>docker run hello-docker:v1</code>. If you see 'Hello Docker!' printed, you succeeded! The container exits on its own because the script finishes.",
+    expected: "Terminal prints Hello Docker! and the container shows as 'Exited' in docker ps -a."
+  },
+  {
+    topic: "Docker run — web app",
+    title: "Run a web server container with port mapping",
+    objective: "Run the official Nginx web server container and make it accessible from your browser using port mapping.",
+    steps: [
+      "Pull and run the nginx image from Docker Hub in detached mode",
+      "Map port 8080 on your computer to port 80 inside the container",
+      "Give it a name so it is easy to manage",
+      "Open your browser and visit http://localhost:8080",
+      "You should see the Nginx welcome page"
+    ],
+    hint: "The command is <code>docker run -d --name my-nginx -p 8080:80 nginx</code>. The -d flag runs it in the background. The -p 8080:80 means port 8080 on your machine maps to port 80 inside the container.",
+    expected: "Browser shows the Nginx welcome page at http://localhost:8080. Container shows as 'Up' in docker ps."
+  },
+  {
+    topic: "List containers",
+    title: "List running and stopped containers",
+    objective: "Practice the different ways to list containers — only running ones, all of them, and only the stopped ones.",
+    steps: [
+      "Run docker ps — notice only running containers appear",
+      "Run docker ps -a — now you see all containers including stopped ones",
+      "Run docker ps -a --filter \"status=exited\" — only stopped containers",
+      "Note the CONTAINER ID, NAME, STATUS, and PORTS columns",
+      "Write down what each column tells you"
+    ],
+    hint: "<code>docker ps</code> = running only. <code>docker ps -a</code> = all. <code>--filter \"status=exited\"</code> shows only stopped ones. The STATUS column will say 'Up' or 'Exited (0)'.",
+    expected: "You can see the my-nginx container as 'Up' and the hello-docker container as 'Exited'. You understand what each column shows."
+  },
+  {
+    topic: "Stop & restart",
+    title: "Stop, start, and restart a container",
+    objective: "Practice controlling a running container's lifecycle — stopping it, starting it again, and restarting it.",
+    steps: [
+      "Make sure my-nginx is running (docker ps should show it)",
+      "Stop it using docker stop my-nginx",
+      "Check docker ps — it should disappear from the running list",
+      "Check docker ps -a — it should appear as Exited",
+      "Start it again using docker start my-nginx",
+      "Now try docker restart my-nginx to do both in one command"
+    ],
+    hint: "<code>docker stop my-nginx</code> gracefully stops it. <code>docker start my-nginx</code> brings it back. <code>docker restart my-nginx</code> = stop + start together. Use the container name or its ID.",
+    expected: "After docker start, visiting http://localhost:8080 in your browser shows the Nginx page again."
+  },
+  {
+    topic: "Restart always",
+    title: "Run a container that always restarts",
+    objective: "Start a container with the --restart always policy so it comes back automatically even after stopping. Then observe the difference between --restart always and a normal container.",
+    steps: [
+      "Stop and remove my-nginx first: docker stop my-nginx then docker rm my-nginx",
+      "Run a new nginx container with the restart policy",
+      "Stop Docker Desktop and restart it (or restart the Docker daemon)",
+      "After Docker restarts, run docker ps — your container should be running again automatically",
+      "Compare: run another container without --restart and see it does NOT come back"
+    ],
+    hint: "The command is <code>docker run -d --name always-nginx -p 8080:80 --restart always nginx</code>. This is the most common setting for production servers.",
+    expected: "After Docker restarts, always-nginx appears as 'Up' in docker ps without you doing anything."
+  },
+  {
+    topic: "Logs & debug",
+    title: "View logs and get inside a container",
+    objective: "Use docker logs to see what a container is printing, then use docker exec to open a shell inside it and look around.",
+    steps: [
+      "Make sure always-nginx is running (docker ps)",
+      "View its logs: docker logs always-nginx",
+      "Follow logs live: docker logs -f always-nginx (press Ctrl+C to stop)",
+      "Open a shell inside the container: docker exec -it always-nginx bash",
+      "Inside the container, run ls to see the files",
+      "Run ls /etc/nginx to see the nginx config folder",
+      "Type exit to leave the container shell"
+    ],
+    hint: "<code>docker logs always-nginx</code> shows past output. Add <code>-f</code> to stream live. <code>docker exec -it always-nginx bash</code> drops you inside the container. You are now inside a Linux system — <code>ls</code>, <code>pwd</code>, <code>cat</code> all work.",
+    expected: "You can see Nginx log lines. After exec, your terminal prompt changes to something like root@abc123:/# — you are inside the container!"
+  }
+];
+
+let done = new Set();
+
+function render() {
+  const list = document.getElementById('tasks-list');
+  list.innerHTML = '';
+  tasks.forEach((t, i) => {
+    const isDone = done.has(i);
+    const card = document.createElement('div');
+    card.className = 'task-card' + (isDone ? ' done' : '');
+    card.innerHTML = `
+      <div class="task-header" onclick="toggleBody(${i})">
+        <div class="task-num">${isDone ? '&#10003;' : i+1}</div>
+        <div class="task-title-wrap">
+          <div class="task-topic">${t.topic}</div>
+          <div class="task-title">${t.title}</div>
+        </div>
+        <button class="check-btn" onclick="event.stopPropagation();toggleDone(${i})">${isDone ? 'Done' : 'Mark done'}</button>
+      </div>
+      <div class="task-body" id="body-${i}">
+        <p class="objective">${t.objective}</p>
+        <div class="steps-label">Steps to follow</div>
+        <div class="steps">
+          ${t.steps.map((s,j) => `<div class="step"><div class="step-n">${j+1}</div><span>${s}</span></div>`).join('')}
+        </div>
+        <button class="hint-toggle" id="hint-btn-${i}" onclick="toggleHint(${i})">Show hint</button>
+        <div class="hint-box" id="hint-${i}">${t.hint}</div>
+        <div class="expected"><strong>Expected result:</strong> ${t.expected}</div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+  document.getElementById('done-count').textContent = done.size;
+}
+
+function toggleBody(i) {
+  const b = document.getElementById('body-' + i);
+  b.classList.toggle('open');
+}
+
+function toggleDone(i) {
+  if (done.has(i)) done.delete(i); else done.add(i);
+  render();
+}
+
+function toggleHint(i) {
+  const h = document.getElementById('hint-' + i);
+  const btn = document.getElementById('hint-btn-' + i);
+  const isOpen = h.classList.toggle('open');
+  btn.textContent = isOpen ? 'Hide hint' : 'Show hint';
+}
+
+render();
+</script>
